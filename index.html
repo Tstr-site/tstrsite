@@ -135,7 +135,69 @@
 								</article>
 
 							</div>
-						</div>
+						<div id="listings-container">Loading listings...</div>
+							<script>
+    // --- START JavaScript to fetch and display listings ---
+
+    // IMPORTANT: Replace 'YOUR_SHEETDB_API_URL_HERE' with your actual API URL from SheetDB.io
+    const SHEETDB_API_URL = https://sheetdb.io/api/v1/ixvcp3dty9krf; 
+
+    async function fetchListings() {
+        try {
+            // Fetch data from your Google Sheet via SheetDB.io
+            const response = await fetch(SHEETDB_API_URL);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const listings = await response.json(); // Parse the JSON response
+
+            // Get the container where listings will be displayed
+            const container = document.getElementById('listings-container');
+            if (!container) {
+                console.error('Error: "listings-container" element not found.');
+                return;
+            }
+            container.innerHTML = ''; // Clear any initial "Loading..." message
+
+            // Check if any listings were found
+            if (listings.length === 0) {
+                container.innerHTML = '<p>No listings found yet. Please check back soon!</p>';
+                return;
+            }
+
+            // Loop through each listing and create HTML for it
+            listings.forEach(listing => {
+                const listingCard = document.createElement('div');
+                listingCard.className = 'listing-card'; // Add a class for potential styling (you'll need to define 'listing-card' in your CSS)
+
+                // Construct the HTML for each listing.
+                // Ensure the 'listing.Name', 'listing.Address', etc., exactly match your column headers in Google Sheet.
+                listingCard.innerHTML = `
+                    <h3>${listing.Name || 'N/A'}</h3>
+                    <p><strong>Category:</strong> ${listing.Category || 'N/A'}</p>
+                    <p><strong>Address:</strong> ${listing.Address || 'N/A'}</p>
+                    <p><strong>Phone:</strong> ${listing.Phone || 'N/A'}</p>
+                    <p>${listing.Description || 'No description provided.'}</p>
+                    ${listing.Website ? `<p><a href="${listing.Website}" target="_blank" rel="noopener noreferrer">Visit Website</a></p>` : ''}
+                    ${listing.Image_URL ? `<img src="${listing.Image_URL}" alt="${listing.Name}" style="max-width: 150px; height: auto; display: block; margin-top: 10px;">` : ''}
+                `;
+                container.appendChild(listingCard);
+            });
+
+        } catch (error) {
+            console.error('Error fetching or processing listings:', error);
+            const container = document.getElementById('listings-container');
+            if (container) {
+                container.innerHTML = '<p>Failed to load listings. Please check your data source or try again later.</p>';
+            }
+        }
+    }
+
+    // Call the function to fetch listings when the page loads
+    fetchListings();
+
+    // --- END JavaScript to fetch and display listings ---
+</script>
 					</div>
 				</div>
 
